@@ -1,0 +1,39 @@
+FROM docker.io/library/archlinux:latest
+
+LABEL maintainer="thorstenrie <https://github.com/thorstenrie/ts-bedrock>"
+
+ARG UGID=667
+
+RUN groupadd -g $UGID minecraft-bedrock && \
+    useradd -r -m -l -d /opt/minecraft-bedrock-server -u $UGID -g minecraft-bedrock minecraft-bedrock && \
+    mkdir -p /opt/minecraft-bedrock-server && \
+    mkdir -p /home/minecraft-bedrock/builds && \
+    pacman -Syu --noconfirm && \
+    pacman -S --noconfirm --needed unzip base-devel git && \
+    chmod 755 /opt/minecraft-bedrock-server && \
+    chown -R minecraft-bedrock:minecraft-bedrock /home/minecraft-bedrock
+
+#    chown -R minecraft-bedrock:minecraft-bedrock /opt/minecraft-bedrock-server
+
+USER minecraft-bedrock
+
+WORKDIR /home/minecraft-bedrock/builds
+
+RUN git clone https://aur.archlinux.org/minecraft-bedrock-server.git
+
+WORKDIR minecraft-bedrock-server
+
+RUN makepkg -c
+
+USER root
+
+RUN pacman -U --noconfirm $(ls minecraft-bedrock-server-*.pkg.tar.zst)
+
+USER minecraft-bedrock
+
+WORKDIR /opt/minecraft-bedrock-server
+
+EXPOSE 19132/udp
+EXPOSE 43351/udp
+
+CMD [ "/bin/sh", "-c", "LD_LIBRARY_PATH=. ./bedrock_server" ]
