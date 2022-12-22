@@ -12,7 +12,7 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/thorstenrie/ts-bedrock)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/thorstenrie/ts-bedrock)
 ![GitHub Top Language](https://img.shields.io/github/languages/top/thorstenrie/ts-bedrock)
-![GitHub](https://img.shields.io/github/license/thorstenrie/bedrock)
+![GitHub](https://img.shields.io/github/license/thorstenrie/ts-bedrock)
 
 Minecraft [Bedrock dedicated server](https://www.minecraft.net/en-us/download/server/bedrock) container based on [Archlinux](https://archlinux.org/) that tries to keep it simple ([KISS principle](https://en.wikipedia.org/wiki/KISS_principle)). One purpose could be to play Minecraft with family and friends on a self-hosted Minecraft bedrock server. After the network and container setup is completed, just share the address of your server with your family and friends. They can login to your server using the address with their bedrock client.
 
