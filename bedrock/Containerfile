@@ -13,8 +13,6 @@ RUN groupadd -g $UGID minecraft-bedrock && \
     chmod 755 /opt/minecraft-bedrock-server && \
     chown -R minecraft-bedrock:minecraft-bedrock /home/minecraft-bedrock
 
-#    chown -R minecraft-bedrock:minecraft-bedrock /opt/minecraft-bedrock-server
-
 USER minecraft-bedrock
 
 WORKDIR /home/minecraft-bedrock/builds
@@ -29,6 +27,9 @@ USER root
 
 RUN pacman -U --noconfirm $(ls minecraft-bedrock-server-*.pkg.tar.zst)
 
+COPY --chown=minecraft-bedrock:minecraft-bedrock start.sh /opt/minecraft-bedrock-server
+COPY --chown=minecraft-bedrock:minecraft-bedrock server.properties /opt/minecraft-bedrock-server
+
 USER minecraft-bedrock
 
 WORKDIR /opt/minecraft-bedrock-server
@@ -36,4 +37,5 @@ WORKDIR /opt/minecraft-bedrock-server
 EXPOSE 19132/udp
 EXPOSE 43351/udp
 
-CMD [ "/bin/sh", "-c", "LD_LIBRARY_PATH=. ./bedrock_server" ]
+#CMD [ "/bin/sh", "-c", "LD_LIBRARY_PATH=. ./bedrock_server >> bedrock-log-$(date +%d.%m.%Y-%H.%m.%S).txt" ]
+CMD [ "./start.sh" ]
