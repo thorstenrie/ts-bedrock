@@ -3,41 +3,30 @@ FROM docker.io/library/archlinux:latest
 LABEL maintainer="thorstenrie <https://github.com/thorstenrie/ts-bedrock>"
 
 ARG UGID=667
+ARG VER_BUILD=1.19.51.01
+
+EXPOSE 19132/udp
+EXPOSE 43351/udp
 
 RUN groupadd -g $UGID minecraft-bedrock && \
-    useradd -r -m -l -d /opt/minecraft-bedrock-server -u $UGID -g minecraft-bedrock minecraft-bedrock && \
-    mkdir -p /opt/minecraft-bedrock-server/worlds && \
-    mkdir /opt/minecraft-bedrock-server/behavior_packs && \
-    mkdir /opt/minecraft-bedrock-server/resource-packs && \
-    mkdir /opt/minecraft-bedrock-server/config && \
-    mkdir -p /home/minecraft-bedrock && \
+    useradd -r -m -l -u $UGID -g minecraft-bedrock minecraft-bedrock && \
     pacman -Syu --noconfirm && \
-    pacman -S --noconfirm --needed unzip base-devel git curl && \
-    chmod 755 /opt/minecraft-bedrock-server && \
-    chown -R minecraft-bedrock:minecraft-bedrock /home/minecraft-bedrock && \
+    pacman -S --noconfirm --needed unzip curl && \
     ln -fs /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
 
 USER minecraft-bedrock
 
 WORKDIR /home/minecraft-bedrock
 
-RUN git clone https://aur.archlinux.org/minecraft-bedrock-server.git
+RUN mkdir -p server/worlds && \
+    mkdir resource_packs && \
+    mkdir behavior_packs && \
+    mkdir config && \
+    chmod 755 server && \
+    curl https://minecraft.azureedge.net/bin-linux/bedrock-server-$VER_BUILD.zip --output bedrock-server.zip
 
-WORKDIR minecraft-bedrock-server
+WORKDIR /home/minecraft-bedrock/server
 
-RUN makepkg -c
-
-USER root
-
-RUN pacman -U --noconfirm $(ls minecraft-bedrock-server-*.pkg.tar.zst)
-
-COPY --chown=minecraft-bedrock:minecraft-bedrock start.sh server.properties /opt/minecraft-bedrock-server
-
-USER minecraft-bedrock
-
-WORKDIR /opt/minecraft-bedrock-server
-
-EXPOSE 19132/udp
-EXPOSE 43351/udp
+COPY --chown=minecraft-bedrock:minecraft-bedrock start.sh .
 
 CMD [ "./start.sh" ]
