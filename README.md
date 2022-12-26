@@ -144,7 +144,7 @@ With the `--volume` flag, the container `worlds` directory can be mapped to the 
 
 ### Non-root system user
 
-Within the container, the bedrock client will be executed by a non-root system user with username `minecraft-bedrock` in group `minecraft-bedrock`. The user is also required to be existent on the host system to actually store downloaded files in the bind mount.
+Within the container, the bedrock client will be executed by a non-root system user with username `minecraft-bedrock` in group `minecraft-bedrock`. The user is also required to be existent on the host system to actually store config and worlds files in the bind mount.
 
 - For the container, the user will be automatically created in the container build
 - For the host system, you need to create the user, group and change the owner of `$TS_MCBR_HOME`
@@ -182,7 +182,7 @@ The container will be launched in a pod [1](https://kubernetes.io/docs/concepts/
 
 ### Launch the container
 
-With [podman-run](https://docs.podman.io/en/latest/markdown/podman-run.1.html), the bedrock server is launched in container `mcbr` in pod `ts_bedrock_pod`. With the `--volume` flags, the download directory and session data directory bind mounts are used.
+With [podman-run](https://docs.podman.io/en/latest/markdown/podman-run.1.html), the bedrock server is launched in container `mcbr` in pod `ts_bedrock_pod`. With the `--volume` flags, the config and worlds directories bind mounts are used.
 
         # podman run --rm -it \
             --pod ts_bedrock_pod \
