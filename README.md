@@ -57,3 +57,63 @@ The ports need to be opened and forwarded in routers and firewalls with the corr
 
 Additionally, both ports need to be published with the container or pod. With [podman-run](https://docs.podman.io/en/latest/markdown/podman-run.1.html) and [podman-pod-create](https://docs.podman.io/en/latest/markdown/podman-pod-create.1.html), this can be done by using the `--publish` flag.
 
+## Server Configuration Files
+
+Server configuration files can be stored in the container `config` directory `/home/minecraft-bedrock/config`. Before the server is launched the supported configuration files are copied into the server directory. Supported configuration files are `server.properties`, `allowlist.json` and `permissions.json`.
+
+To load server configuration files from the host system, a bind mount mapping is needed mapping the container `config` directory in the container to a defined directory on the host system. Therefore, the `config` directory needs to be created in the container and in the host system.
+
+- For the container, the directory will be automatically created in the container build.
+- For the host system, you need to define and create it by yourself.
+
+First, create an environment variable, holding the main host system bedrock server directory path, e.g., `/srv/bedrock`
+
+        $ export TS_MSBR_HOME=/srv/bedrock
+
+Afterwards, create the directory, e.g.,
+
+        # mkdir -p "$TS_MSBR_HOME"/config
+
+With the `--volume` flag, the container `config` directory can be mapped to the host `config` directory.
+
+## Worlds
+
+Every created world has a folder in the `worlds` container directory `/home/minecraft-bedrock/server/worlds`. The world folders are named according to their `level-name` inside the `server.properties` file. To persist worlds independent of the container lifecycle, a bind mount mapping is needed mapping the container `worlds` directory in the container to a defined directory on the host system. Therefore, the `worlds` directory needs to be created in the container and in the host system.
+
+- For the container, the directory will be automatically created in the container build.
+- For the host system, you need to define and create it by yourself.
+
+First, create an environment variable, holding the main host system bedrock server directory path, e.g., `/srv/bedrock`
+
+        $ export TS_MSBR_HOME=/srv/bedrock
+
+Afterwards, create the directory, e.g.,
+
+        # mkdir -p "$TS_MSBR_HOME"/server/worlds
+
+With the `--volume` flag, the container `worlds` directory can be mapped to the host `worlds` directory.
+
+## Non-root system user
+
+Within the container, the bedrock client will be executed by a non-root system user with username `minecraft-bedrock` in group `minecraft-bedrock`. The user is also required to be existent on the host system to actually store downloaded files in the bind mount.
+
+- For the container, the user will be automatically created in the container build
+- For the host system, you need to create the user, group and change the owner of `$TS_RT_CLIENT_HOME`
+- It is recommended, for security reasons, to have a new user namespace for the container, which is mapped to host system uid and gid ranges. Multiples of 2^16 with size 2^16 are a reasonable mapping on the host system uid and gid ranges. As example, container uid and gid `0` to `65535` can be mapped to the host system starting with uid and gid `524288` (and size `65536`)
+- In this case, the rtorrent uid and gid on the host system is different from the uid and gid in the container. On the host system, the rtorrent uid and gid must correspond to the user namespace mapping.
+- In the following, the above mapping is assumed. Therefore, on the host system, rtorrent uid and gid is `524955` (524288 + 667). In the container, rtorrent uid and gid is `667`.
+
+To create the group and user on the host system, run
+
+    # groupadd -r --gid 524955 minecraft-bedrock
+    # useradd -r --uid 524955 --gid 524955 -s /usr/bin/nologin minecraft-bedrock
+    
+Next, change the owner of `$TS_MSBR_HOME` to the new user
+
+    # chown -R 524955:524955 "$TS_MSBR_HOME"
+    
+With the `--uidmap 0:524288:65536` and `--gidmap 0:524288:65536` flags, the container gids and uids are mapped on the corresponding host gids and uids, as defined in the example above.
+
+
+
+
