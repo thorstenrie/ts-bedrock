@@ -59,7 +59,7 @@ Additionally, both ports need to be published with the container or pod. With [p
 
 ## Server Configuration Files
 
-Server configuration files can be stored in the container `config` directory `/home/minecraft-bedrock/config`. Before the server is launched the supported configuration files are copied into the server directory. Supported configuration files are `server.properties`, `allowlist.json` and `permissions.json`.
+Server configuration files can be stored in the container `config` directory `/home/minecraft-bedrock/config`. Before the server is launched the supported configuration files are copied into the server directory. Supported configuration files are `server.properties`, `allowlist.json` and `permissions.json`. Example configuration files can be found in [example_config](https://github.com/thorstenrie/ts-bedrock/tree/main/example_config)
 
 To load server configuration files from the host system, a bind mount mapping is needed mapping the container `config` directory in the container to a defined directory on the host system. Therefore, the `config` directory needs to be created in the container and in the host system.
 
