@@ -207,18 +207,18 @@ The container automatically starts the bedrock server using the configuration fi
 
 The following commands stop the pod, stop all containers in the pod, and remove the pod, container and container images. It is recommended to first gracefully stop the bedrock server with the server command `stop` before stopping the pod.
 
-    # podman pod stop ts_bedrock_pod
-    # podman pod rm ts_bedrock_pod
-    # podman container rm mcbr
-    # podman rmi archlinux
-    # podman rmi bedrock
+        # podman pod stop ts_bedrock_pod
+        # podman pod rm ts_bedrock_pod
+        # podman container rm mcbr
+        # podman rmi archlinux
+        # podman rmi bedrock
 
 ## Maintainance
 
 - The container will be kept up to date in this repository to support the latest Minecraft Bedrock version.
 - For switching to another version manually, `ARG MCVER=<version>` in the [Containerfile](https://github.com/thorstenrie/ts-bedrock/blob/main/bedrock/Containerfile) has to be changed to the desired version, for example, by providing it to `podman build`:
 
-    # podman build --pull --no-cache --build-arg MCVER=<version> -t bedrock ./bedrock
+        # podman build --pull --no-cache --build-arg MCVER=<version> -t bedrock ./bedrock
     
 - Versions lower than `1.19.51.01` are not supported due to the dependency on `openssl-1.1`, which is not included in the container. The used version of openssl in the container is minimum `openssl 3.0`.
 - In the sense of the Arch Linux rolling-release model, it is recommended to rebuild the container image frequently, e.g., based on time periods, like weekly, or every time it is launched. This ensures that the container stays up-to-date with latest updates making full use of the rolling-release model of Arch Linux.
