@@ -19,17 +19,18 @@ Minecraft [Bedrock dedicated server](https://www.minecraft.net/en-us/download/se
 - **Security**: the Bedrock server is run from a non-root system user, ready and recommended to be run in a new user namespace
 - **Functionality**: the Bedrock server is pre-configured for use on a home/self-hosted server
 - **Easy setup**: Use the example shell scripts for an easy start to launch the container and start playing Minecraft
+- **Easy use**: Connect to the server address (e.g., IP) and server port (default `19132`) in minecraft and start playing
 
-Clone the git repository with:
-
-    git clone https://github.com/thorstenrie/ts-bedrock.git
-    
 Three options to get it running:
 
 - **Build & run with the Quick Start Guide**: Run the container with minimal effort by using provided example scripts
 *(Warning: only recommended for development environments!)*
 - **Build & run with the Setup Guide**: Follow each step of the setup guide and adapt it to your needs
 - **Directly pull the container image**: Follow the Readme on [docker.io/thorstenrie/ts-bedrock](https://hub.docker.com/repository/docker/thorstenrie/ts-bedrock) (fixed world generation seed and container building not needed)
+
+Clone the git repository with:
+
+    git clone https://github.com/thorstenrie/ts-bedrock.git
 
 ## Prerequisites
 
@@ -41,7 +42,7 @@ The container is expected to also run with Docker. To complete the guide with Do
 
 Memory usage is ~128 MB in idle with no players ever connected and easily reaches 300 MB+ with one player exploring a small area playing for a few minutes. A 2 GB+ available RAM, a SSD and at least a quad core CPU with 3 GHz+ is recommended for a good server experience with a handful of players.
 
-## Network Setup
+## Network setup
 
 To run properly, two ports are needed: 
 
@@ -57,7 +58,9 @@ The ports need to be opened and forwarded in routers and firewalls with the corr
 
 Additionally, both ports need to be published with the container or pod. With [podman-run](https://docs.podman.io/en/latest/markdown/podman-run.1.html) and [podman-pod-create](https://docs.podman.io/en/latest/markdown/podman-pod-create.1.html), this can be done by using the `--publish` flag.
 
-## Server Configuration Files
+## Setup guide & execution
+
+### Server configuration files
 
 Server configuration files can be stored in the container `config` directory `/home/minecraft-bedrock/config`. Before the server is launched the supported configuration files are copied into the server directory. Supported configuration files are `server.properties`, `allowlist.json` and `permissions.json`. Example configuration files can be found in [example_config](https://github.com/thorstenrie/ts-bedrock/tree/main/example_config)
 
@@ -68,15 +71,15 @@ To load server configuration files from the host system, a bind mount mapping is
 
 First, create an environment variable, holding the main host system bedrock server directory path, e.g., `/srv/bedrock`
 
-        $ export TS_MSBR_HOME=/srv/bedrock
+        $ export TS_MCBR_HOME=/srv/bedrock
 
 Afterwards, create the directory, e.g.,
 
-        # mkdir -p "$TS_MSBR_HOME"/config
+        # mkdir -p "$TS_MCBR_HOME"/config
 
-With the `--volume` flag, the container `config` directory can be mapped to the host `config` directory.
+With the `--volume` flag, the container `config` directory can be mapped to the host `config` directory: `--volume "$TS_MCBR_HOME"/config:/home/minecraft-bedrock/config`
 
-## Worlds
+### Worlds
 
 Every created world has a folder in the `worlds` container directory `/home/minecraft-bedrock/server/worlds`. The world folders are named according to their `level-name` inside the `server.properties` file. To persist worlds independent of the container lifecycle, a bind mount mapping is needed mapping the container `worlds` directory in the container to a defined directory on the host system. Therefore, the `worlds` directory needs to be created in the container and in the host system.
 
@@ -85,34 +88,66 @@ Every created world has a folder in the `worlds` container directory `/home/mine
 
 First, create an environment variable, holding the main host system bedrock server directory path, e.g., `/srv/bedrock`
 
-        $ export TS_MSBR_HOME=/srv/bedrock
+        $ export TS_MCBR_HOME=/srv/bedrock
 
 Afterwards, create the directory, e.g.,
 
-        # mkdir -p "$TS_MSBR_HOME"/server/worlds
+        # mkdir -p "$TS_MCBR_HOME"/server/worlds
 
-With the `--volume` flag, the container `worlds` directory can be mapped to the host `worlds` directory.
+With the `--volume` flag, the container `worlds` directory can be mapped to the host `worlds` directory: `--volume "$TS_MCBR_HOME"/server/worlds:/home/minecraft-bedrock/server/worlds`
 
-## Non-root system user
+### Non-root system user
 
 Within the container, the bedrock client will be executed by a non-root system user with username `minecraft-bedrock` in group `minecraft-bedrock`. The user is also required to be existent on the host system to actually store downloaded files in the bind mount.
 
 - For the container, the user will be automatically created in the container build
 - For the host system, you need to create the user, group and change the owner of `$TS_MSBR_HOME`
-- It is recommended, for security reasons, to have a new user namespace for the container, which is mapped to host system uid and gid ranges. Multiples of 2^16 with size 2^16 are a reasonable mapping on the host system uid and gid ranges. As example, container uid and gid `0` to `65535` can be mapped to the host system starting with uid and gid `524288` (and size `65536`)
-- In this case, the rtorrent uid and gid on the host system is different from the uid and gid in the container. On the host system, the rtorrent uid and gid must correspond to the user namespace mapping.
-- In the following, the above mapping is assumed. Therefore, on the host system, rtorrent uid and gid is `524955` (524288 + 667). In the container, rtorrent uid and gid is `667`.
+- It is recommended, for security reasons, to have a new user namespace for the container, which is mapped to host system uid and gid ranges. Multiples of 2^16 with size 2^16 are a reasonable mapping on the host system uid and gid ranges. As example, container uid and gid `0` to `65535` can be mapped to the host system starting with uid and gid `1966080` (and size `65536`)
+- In this case, the rtorrent uid and gid on the host system is different from the uid and gid in the container. On the host system, the minecraft-bedrock uid and gid must correspond to the user namespace mapping.
+- In the following, the above mapping is assumed. Therefore, on the host system, minecraft-bedrock uid and gid is `1966747` (1966080 + 667). In the container, rtorrent uid and gid is `667`.
 
 To create the group and user on the host system, run
 
-    # groupadd -r --gid 524955 minecraft-bedrock
-    # useradd -r --uid 524955 --gid 524955 -s /usr/bin/nologin minecraft-bedrock
+    # groupadd -r --gid 1966747 minecraft-bedrock
+    # useradd -r --uid 1966747 --gid 1966747 -s /usr/bin/nologin minecraft-bedrock
     
 Next, change the owner of `$TS_MSBR_HOME` to the new user
 
-    # chown -R 524955:524955 "$TS_MSBR_HOME"
+    # chown -R 1966747:1966747 "$TS_MCBR_HOME"
     
-With the `--uidmap 0:524288:65536` and `--gidmap 0:524288:65536` flags, the container gids and uids are mapped on the corresponding host gids and uids, as defined in the example above.
+With the `--uidmap 0:1966080:65536` and `--gidmap 0:1966080:65536` flags, the container gids and uids are mapped on the corresponding host gids and uids, as defined in the example above.
+
+### Build the container image
+
+The container image `bedrock` is build with [podman-build](https://docs.podman.io/en/latest/markdown/podman-build.1.html). With the flags `--pull` and `--no-cache` it explicitely requires the base image to be pulled from the registry and build from start.
+
+    # podman build --pull --no-cache -t bedrock ./bedrock/
+
+### Create a pod
+
+The container will be launched in a pod [1](https://kubernetes.io/docs/concepts/workloads/pods/) [2](https://developers.redhat.com/blog/2019/01/15/podman-managing-containers-pods). Here, we will create a new pod named `ts_bedrock_pod`. To enable the bedrock server in the container to use the required ports, they have to be published to the host.
+
+    # podman pod create \
+        --name ts_bedrock_pod \
+        --uidmap 0:1966080:65536 \
+        --gidmap 0:1966080:65536 \
+        --publish 19132:19132/udp \
+        --publish 43351:43351/udp
+
+### Launch the container
+
+With [podman-run](https://docs.podman.io/en/latest/markdown/podman-run.1.html), the bedrock server is launched in container `mcbr` in pod `ts_bedrock_pod`. With the `--volume` flags, the download directory and session data directory bind mounts are used.
+
+- With `--rm` the container will be removed when it exits.
+- With `-it` a pseudo-TTY is allocated and connected to the container’s stdin, so that an interactive bash shell in the container is created. It can be used to execute commands on the bedrock server.
+- With `-d` instead of `-it`, the container is run in the background. To attach to the container and execute commands on the bedrock server, use `# podman attach mcbr`
+
+    # podman run --rm -it \
+        --pod ts_bedrock_pod \
+        --volume "$TS_MCBR_HOME"/config:/home/minecraft-bedrock/config \
+        --volume "$TS_MCBR_HOME"/server/worlds:/home/minecraft-bedrock/server/worlds \
+        --name mcbr \
+        bedrock
 
 
 
