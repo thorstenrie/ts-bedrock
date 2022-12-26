@@ -138,16 +138,34 @@ The container will be launched in a pod [1](https://kubernetes.io/docs/concepts/
 
 With [podman-run](https://docs.podman.io/en/latest/markdown/podman-run.1.html), the bedrock server is launched in container `mcbr` in pod `ts_bedrock_pod`. With the `--volume` flags, the download directory and session data directory bind mounts are used.
 
+        # podman run --rm -it \
+            --pod ts_bedrock_pod \
+            --volume "$TS_MCBR_HOME"/config:/home/minecraft-bedrock/config \
+            --volume "$TS_MCBR_HOME"/server/worlds:/home/minecraft-bedrock/server/worlds \
+            --name mcbr \
+            bedrock
+            
 - With `--rm` the container will be removed when it exits.
 - With `-it` a pseudo-TTY is allocated and connected to the container’s stdin, so that an interactive bash shell in the container is created. It can be used to execute commands on the bedrock server.
 - With `-d` instead of `-it`, the container is run in the background. To attach to the container and execute commands on the bedrock server, use `# podman attach mcbr`
 
-    # podman run --rm -it \
-        --pod ts_bedrock_pod \
-        --volume "$TS_MCBR_HOME"/config:/home/minecraft-bedrock/config \
-        --volume "$TS_MCBR_HOME"/server/worlds:/home/minecraft-bedrock/server/worlds \
-        --name mcbr \
-        bedrock
+The container automatically starts the bedrock server using the configuration files in `/home/minecraft-bedrock/config`.
+
+### Execute commands and stop the bedrock server
+
+- If the container is run with an interactive bash shell (`-it`) just type in the server command and press Enter.
+- If the container is run detached in the background, first attach to the container with `# podman attach mcbr`, then  type in the server command and press Enter.
+- It is recommended to gracefully stop the bedrock server with the server command `stop`. The bedrock server will quit and the container will be stopped.
+
+### Stop the pod and remove all
+
+The following commands stop the pod, stop all containers in the pod, and remove the pod, container and container images.
+
+    # podman pod stop ts_bedrock_pod
+    # podman pod rm ts_bedrock_pod
+    # podman container rm mcbr
+    # podman rmi archlinux
+    # podman rmi bedrock
 
 
 
