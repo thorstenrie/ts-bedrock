@@ -3,7 +3,7 @@ FROM docker.io/library/archlinux:latest
 LABEL maintainer="thorstenrie <https://github.com/thorstenrie/ts-bedrock>"
 
 ARG UGID=667
-ARG VER_BUILD=1.19.51.01
+ARG MCVER=1.19.51.01
 
 EXPOSE 19132/udp
 EXPOSE 43351/udp
@@ -23,7 +23,7 @@ RUN mkdir -p server/worlds && \
     mkdir behavior_packs && \
     mkdir config && \
     chmod 755 server && \
-    curl https://minecraft.azureedge.net/bin-linux/bedrock-server-$VER_BUILD.zip --output bedrock-server.zip
+    curl https://minecraft.azureedge.net/bin-linux/bedrock-server-$MCVER.zip --output bedrock-server.zip
 
 WORKDIR /home/minecraft-bedrock/server
 
