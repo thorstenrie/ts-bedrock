@@ -154,12 +154,12 @@ The container automatically starts the bedrock server using the configuration fi
 ### Execute commands and stop the bedrock server
 
 - If the container is run with an interactive bash shell (`-it`) just type in the server command and press Enter.
-- If the container is run detached in the background, first attach to the container with `# podman attach mcbr`, then  type in the server command and press Enter.
+- If the container is run detached in the background(`-d`), first attach to the container with `# podman attach mcbr`, then  type in the server command and press Enter.
 - It is recommended to gracefully stop the bedrock server with the server command `stop`. The bedrock server will quit and the container will be stopped.
 
 ### Stop the pod and remove all
 
-The following commands stop the pod, stop all containers in the pod, and remove the pod, container and container images.
+The following commands stop the pod, stop all containers in the pod, and remove the pod, container and container images. It is recommended to first gracefully stop the bedrock server with the server command `stop` before stopping the pod.
 
     # podman pod stop ts_bedrock_pod
     # podman pod rm ts_bedrock_pod
@@ -167,6 +167,12 @@ The following commands stop the pod, stop all containers in the pod, and remove 
     # podman rmi archlinux
     # podman rmi bedrock
 
+## Maintainance
 
+- The container will be kept up to date in this repository to support the latest Minecraft Bedrock version.
+- For switching to another version manually, `ARG VER_BUILD=<version>` in the [Containerfile](https://github.com/thorstenrie/ts-bedrock/blob/main/bedrock/Containerfile) has to be changed to the desired version.
+- In the sense of the Arch Linux rolling-release model, it is recommended to rebuild the container image frequently, e.g., based on time periods, like weekly, or every time it is launched. This ensures that the container stays up-to-date with latest updates making full use of the rolling-release model of Arch Linux.
 
+## Known Limitations & Issues
 
+- The container does not support resource or behavior packs (yet).
