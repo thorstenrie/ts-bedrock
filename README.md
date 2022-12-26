@@ -58,6 +58,52 @@ The ports need to be opened and forwarded in routers and firewalls with the corr
 
 Additionally, both ports need to be published with the container or pod. With [podman-run](https://docs.podman.io/en/latest/markdown/podman-run.1.html) and [podman-pod-create](https://docs.podman.io/en/latest/markdown/podman-pod-create.1.html), this can be done by using the `--publish` flag.
 
+## Quick start with example scripts
+
+> Use the example scripts with caution and only in a development environment. The scripts create directories and a non-root system user, therefore change the host system.
+
+> Requires `sudo`: Some commands need root user rights and therefore are preceded with `sudo`
+
+> It is recommended to check the scripts before executing them to prevent unwanted behavior
+
+1. Change your current directory to `example_scripts`
+
+        $ cd example_scripts
+
+1. Configure a new environment variable `$TS_MCBR_HOME` pointing to the directory where config files and worlds are stored, e.g., 
+
+        $ export TS_MCBR_HOME=/srv/bedrock
+        
+1. Configure a new environment variable `$TS_USERNS_MCBR` for the new container user namespace (on most platforms as 32-bit unsigned integer). The uid and gid in the container starting with `0` (root) are mapped to uid and gid starting with `$TS_USERNS_MCBR` on the host system. Following uids and gids are mapped consecutively. It is recommended to run the container in such of a new user namespace mapped to the host system. The mapping on the host system starts with uid and gid `$TS_USERNS_MCBR`, e.g.,
+
+        $ export TS_USERNS_MCBR=1966080
+        
+1. Configure a new environment variable `$TS_UGID_MCBR`. It must be `$TS_USERNS_MCBR` + 667 and is the target uid and gid of the minecraft-bedrock user on the host system, e.g., 
+
+        $ export TS_UGID_MCBR=1966747
+
+2. Run the setup script once to set up your system by creating the config and worlds directories, a non-root system user and group `minecraft-bedrock` with `UID` and `GID` defined by `$TS_UGID_MCBR`
+
+        $ ./setup-ts-bedrock.sh
+        
+3. Run the start script to start a pod, the container and an interactive bash shell to the bedrock server. The config and worlds directories are mounted into the container
+
+        $ ./start-ts-bedrock.sh
+        
+4. To stop the bedrock server, execute
+
+        $ stop
+
+in the interactive bash shell.
+        
+5. To stop the pod and container, execute
+
+        $ ./stop-ts-bedrock.sh
+        
+6. To remove all container images, run
+
+        $ ./remove-ts-bedrock.sh
+
 ## Setup guide & execution
 
 ### Server configuration files
