@@ -3,7 +3,7 @@ FROM docker.io/library/archlinux:latest
 LABEL maintainer="thorstenrie <https://github.com/thorstenrie/ts-bedrock>"
 
 ARG UGID=667
-ARG MCVER=1.19.51.01
+ARG MCVER=1.19.61.01
 
 EXPOSE 19132/udp
 EXPOSE 43351/udp
