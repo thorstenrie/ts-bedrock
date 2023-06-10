@@ -1,11 +1,1 @@
-[
-    {
-        "ignoresPlayerLimit": false,
-        "name": "MyPlayer"
-    },
-    {
-        "ignoresPlayerLimit": false,
-        "name": "AnotherPlayer",
-        "xuid": "274817248"
-    }
-]
+[]
